@@ -17,7 +17,8 @@ namespace methods{
     clearMem(true),
     autoScroll(0),
     animation_speed(0.0001),
-    golInitiated(false){}
+    golInitiated(false),
+    golStepSpeed(500){}
 
     bool Screen::init(){
         if(SDL_Init(SDL_INIT_VIDEO < 0)){
@@ -72,7 +73,8 @@ namespace methods{
                    "\n1.\tSolid Color"
                    "\n2.\tGrid"
                    "\n3.\tCursor"
-                   "\n4.\tGame of Life"<<std::endl;
+                   "\n4.\tGame of Life"
+                   "\n5.\tGame of Life (seed & density)"<<std::endl;
         int choice;
         int gridSize = 0;
         std::cin>>choice;
@@ -156,18 +158,53 @@ namespace methods{
     bool Screen::gameOfLifeRandom(){
         // originate a random board
         if(!golInitiated){
+            // generate new seed for random
+            srand((unsigned int)time(NULL));
+            // use random to assign every pixel 0xFF (white) or 0x00 (black)
             for(int x=0; x<SCREEN_WIDTH; x++){
                 for(int y=0; y<SCREEN_HEIGHT; y++) {
-                    m_buffer[(y*SCREEN_WIDTH)+x] = (0xFFFFFFFF)*(rand()%10==0);
+                    m_buffer[(y*SCREEN_WIDTH)+x] = (0xFFFFFFFF)*(std::rand()%500==0);
                 }
             }
             golInitiated=true;
             return false;
         }
-        // Update every 1 second
-//        return false;
-        SDL_Delay(5000);
-//        std::cout<<"Updating..."<<std::endl;
+        // Update game frame every folStepSpeed milliseconds
+        SDL_Delay(golStepSpeed);
+
+        // update cells in copy under laws described in GoL class logic
+        for(int x=0; x<SCREEN_WIDTH; x++){
+            for(int y=0; y<SCREEN_HEIGHT; y++){
+                // live or dead cell
+                m_buffer_copy[(y*SCREEN_WIDTH)+x] = 0xFFFFFFFF*(GoL::liveOrDead(x, y, SCREEN_WIDTH, SCREEN_HEIGHT, m_buffer));
+            }
+        }
+        // copy buffer_copy into buffer
+        for(int x=0; x<SCREEN_WIDTH; x++){
+            for(int y=0; y<SCREEN_HEIGHT; y++){
+                // live or dead cell
+                m_buffer[(y*SCREEN_WIDTH)+x] = 0xFFFFFFFF*(m_buffer_copy[(y*SCREEN_WIDTH)+x] == 0xFFFFFFFF);
+            }
+        }
+        return true;
+    }
+
+    bool Screen::gameOfLifeFromSeed(unsigned int seed, unsigned int density){
+        // originate a board from seed
+        if(!golInitiated){
+            // generate new seed for random
+            srand(seed);
+            // use random to assign every pixel 0xFF (white) or 0x00 (black) with frequency according to density
+            for(int x=0; x<SCREEN_WIDTH; x++){
+                for(int y=0; y<SCREEN_HEIGHT; y++) {
+                    m_buffer[(y*SCREEN_WIDTH)+x] = (0xFFFFFFFF)*(std::rand()%density==0);
+                }
+            }
+            golInitiated=true;
+            return false;
+        }
+        // Update game frame every folStepSpeed milliseconds
+        SDL_Delay(golStepSpeed);
 
         // update cells in copy under laws described in GoL class logic
         for(int x=0; x<SCREEN_WIDTH; x++){
@@ -187,29 +224,59 @@ namespace methods{
     }
 
     void Screen::mouseEvents(SDL_Event &event){
-        if(event.type == SDL_MOUSEWHEEL && autoScroll==0){
-            std::cout<<event.wheel.y<<std::endl;
-            std::cout<<zoom<<std::endl;
-            zoom += event.wheel.y * 0.1;
-            if (zoom < 0.0) {
-                zoom = 0.0;
-            }
-        }
-        if(event.type == SDL_MOUSEBUTTONDOWN){
-            if(event.button.button==SDL_BUTTON_MIDDLE){
-                clearMem = !clearMem;
-            }
-            if(event.button.button==SDL_BUTTON_RIGHT) {
-                if(autoScroll<0){
-                    autoScroll=0;
-                }else{
-                    autoScroll=-0.02;
+        if(golInitiated){
+            if (event.type == SDL_MOUSEWHEEL) {
+                golStepSpeed += 2 * event.wheel.y;
+                if (golStepSpeed < 0) {
+                    golStepSpeed = 0;
                 }
-            }else if(event.button.clicks==1 && event.button.button==SDL_BUTTON_LEFT){
-                if (autoScroll == 0) {
-                    autoScroll = 0.02;
-                } else if(autoScroll>0) {
-                    autoScroll = 0;
+                if(golStepSpeed==0){
+                    std::cout<<"MAXIMUM OVERDRIVE!!!!!!"<<std::endl;
+                }else{
+                    std::cout<<"New frame every: "<<golStepSpeed<<" milliseconds"<<std::endl;
+                }
+            }
+            if (event.type == SDL_MOUSEBUTTONDOWN) {
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    golStepSpeed -= 100;
+                }
+                if (event.button.button == SDL_BUTTON_RIGHT) {
+                    golStepSpeed += 100;
+                }
+                if (golStepSpeed < 0) {
+                    golStepSpeed = 0;
+                }
+                if(golStepSpeed==0){
+                    std::cout<<"MAXIMUM OVERDRIVE!!!!!!"<<std::endl;
+                }else{
+                    std::cout<<"New frame every: "<<golStepSpeed<<" milliseconds"<<std::endl;
+                }
+            }
+        }else {
+            if (event.type == SDL_MOUSEWHEEL && autoScroll == 0) {
+                std::cout << event.wheel.y << std::endl;
+                std::cout << zoom << std::endl;
+                zoom += event.wheel.y * 0.1;
+                if (zoom < 0.0) {
+                    zoom = 0.0;
+                }
+            }
+            if (event.type == SDL_MOUSEBUTTONDOWN) {
+                if (event.button.button == SDL_BUTTON_MIDDLE) {
+                    clearMem = !clearMem;
+                }
+                if (event.button.button == SDL_BUTTON_RIGHT) {
+                    if (autoScroll < 0) {
+                        autoScroll = 0;
+                    } else {
+                        autoScroll = -0.02;
+                    }
+                } else if (event.button.clicks == 1 && event.button.button == SDL_BUTTON_LEFT) {
+                    if (autoScroll == 0) {
+                        autoScroll = 0.02;
+                    } else if (autoScroll > 0) {
+                        autoScroll = 0;
+                    }
                 }
             }
         }
@@ -229,6 +296,7 @@ namespace methods{
         return true;
     }
     float Screen::getAnimationSpeed() {return animation_speed;}
+    bool Screen::isGolInitiated(){return golInitiated;}
     void Screen::close(){
         delete []m_buffer;
         delete []m_buffer_copy;

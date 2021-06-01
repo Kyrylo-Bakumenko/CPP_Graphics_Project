@@ -8,10 +8,10 @@ class GoL {
 public:
     static int numSurroundingCellsAlive(const int x, const int y, const int width, const int height, const Uint32 *m_buffer){
         int count = 0;
-        for(int row = y-1; row<=y+1; row++){
-            for(int col = x-1; col<=x+1; col++){
-                if(row >= 0 && row < height && col >=0 && col < width && row!=y && col!=x){
-                    if(m_buffer[row*width+y]==0xFFFFFFFF){
+        for(int row = x-1; row<=x+1; row++){
+            for(int col = y-1; col<=y+1; col++){
+                if(row >= 0 && row < width && col >=0 && col < height && !(row==x && col==y)){
+                    if(m_buffer[col*width+row]==0xFFFFFFFF){
                         count++;
                     }
                 }

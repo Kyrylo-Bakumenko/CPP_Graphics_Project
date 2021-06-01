@@ -6,8 +6,8 @@
 namespace methods {
     class Screen {
     public:
-        const static int SCREEN_WIDTH = 800;
-        const static int SCREEN_HEIGHT = 600;
+        const static int SCREEN_WIDTH = 1600;
+        const static int SCREEN_HEIGHT = 1200;
     private:
         SDL_Window *m_window;
         SDL_Renderer *m_renderer;
@@ -19,6 +19,7 @@ namespace methods {
         float autoScroll;
         float animation_speed;
         bool golInitiated;
+        int golStepSpeed;
     public:
         Screen();
         bool init();
@@ -30,9 +31,11 @@ namespace methods {
         void colorGrid(Uint8 red, Uint8 green, Uint8 blue, int gridSize);
         void cursorLines(Uint8 red, Uint8 green, Uint8 blue);
         bool gameOfLifeRandom();
+        bool gameOfLifeFromSeed(unsigned int seed, unsigned int density);
         void mouseEvents(SDL_Event &event);
         bool processEvents();
         float getAnimationSpeed();
+        bool isGolInitiated();
         void close();
 
     };

@@ -13,6 +13,8 @@ int main(int argc, char* args[] )
     Uint8 choice = Screen::menu();
     Uint8 demonstration = (choice >> 4);
     Uint8 gridSize = choice%16;
+    unsigned int seed;
+    unsigned int density;
 
     Screen screen;
     if(!screen.init()){
@@ -36,6 +38,14 @@ int main(int argc, char* args[] )
             screen.cursorLines(red, green, blue);
         }else if(demonstration==4){
             screen.gameOfLifeRandom();
+        }else if(demonstration==5) {
+            if (!screen.isGolInitiated()) {
+                cout << "Enter desired seed: " << flush;
+                cin >> seed;
+                cout << "Enter desired density: " << flush;
+                cin >> density;
+            }
+            screen.gameOfLifeFromSeed(seed, density);
         }
         // Draw screen
         screen.update();
