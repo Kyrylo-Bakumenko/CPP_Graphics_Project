@@ -120,9 +120,9 @@ namespace methods{
         m_buffer[(y*SCREEN_WIDTH)+x] = color;
     }
     void Screen::updateColors(unsigned char &red, unsigned char &green, unsigned char &blue, Uint32 elapsed) const{
-        red = (unsigned char) ((1 + std::sin(elapsed * animation_speed)) * 128);
-        green = (unsigned char) ((1 + std::sin(elapsed * animation_speed*2)) * 128);
-        blue = (unsigned char) ((1 + std::sin(elapsed * animation_speed*3)) * 128);
+        red = (unsigned char) std::max(std::min(((1+std::sin(elapsed * animation_speed)) * 128), 255.f), 0.f);
+        green = (unsigned char) std::max(std::min(((1+std::sin(elapsed * animation_speed*2)) * 128), 255.f), 0.f);
+        blue = (unsigned char) std::max(std::min(((std::sin(elapsed * animation_speed*3)) * 128), 255.f), 0.f);
     }
     void Screen::solidColorScreen(Uint8 red, Uint8 green, Uint8 blue) {
         for(int y=0; y<SCREEN_HEIGHT; y++){
