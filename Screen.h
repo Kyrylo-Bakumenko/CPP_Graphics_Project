@@ -14,6 +14,8 @@ namespace methods {
         SDL_Texture *m_texture;
         Uint32 *m_buffer;
         Uint32 *m_buffer_copy;
+        int sm_x;
+        int sm_y;
         float zoom;
         bool clearMem;
         float autoScroll;
@@ -30,8 +32,11 @@ namespace methods {
         void solidColorScreen(Uint8 red, Uint8 green, Uint8 blue);
         void colorGrid(Uint8 red, Uint8 green, Uint8 blue, int gridSize);
         void cursorLines(Uint8 red, Uint8 green, Uint8 blue);
-        bool gameOfLifeRandom();
-        bool gameOfLifeFromSeed(unsigned int seed, unsigned int density);
+        void cursorLinesFilled(Uint8 red, Uint8 green, Uint8 blue);
+        void gameOfLifeRandom();
+        void gameOfLifeFromSeed(unsigned int seed, unsigned int density);
+        void growthRandom();
+        void growthFromSeed(unsigned int seed, unsigned int density);
         void mouseEvents(SDL_Event &event);
         bool processEvents();
         float getAnimationSpeed();

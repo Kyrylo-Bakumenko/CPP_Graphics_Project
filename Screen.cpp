@@ -13,12 +13,14 @@ namespace methods{
     m_texture(nullptr),
     m_buffer(nullptr),
     m_buffer_copy(nullptr),
+    sm_x(-1),
+    sm_y(-1),
     zoom(5),
     clearMem(true),
     autoScroll(0),
     animation_speed(0.0001),
     golInitiated(false),
-    golStepSpeed(500){}
+    golStepSpeed(100){}
 
     bool Screen::init(){
         if(SDL_Init(SDL_INIT_VIDEO < 0)){
@@ -73,8 +75,12 @@ namespace methods{
                    "\n1.\tSolid Color"
                    "\n2.\tGrid"
                    "\n3.\tCursor"
-                   "\n4.\tGame of Life"
-                   "\n5.\tGame of Life (seed & density)"<<std::endl;
+                   "\n4.\tCursor Filled"
+                   "\n5.\tGame of Life"
+                   "\n6.\tGame of Life (Seed & Density)"
+                   "\n7.\tGrowth Random"
+                   "\n8.\tGrowth (Seed & Density)"
+                   "\n9.\tStarry Sky"<<std::endl;
         int choice;
         int gridSize = 0;
         std::cin>>choice;
@@ -96,6 +102,8 @@ namespace methods{
         SDL_RenderPresent(m_renderer);
     }
     void Screen::setPixel(int x, int y, Uint8 red, Uint8 green, Uint8 blue){
+
+        if(x<0 || x>=SCREEN_WIDTH || y<0 || y>=SCREEN_HEIGHT){return;}
 
         Uint32 color = 0;
 
@@ -144,30 +152,133 @@ namespace methods{
             memset(m_buffer, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
         }
         if(autoScroll<0) {
+            // cross-hair fill
             for (int y = 0; y < SCREEN_HEIGHT; y++) {
                 setPixel(mouse_x, y, red, green, blue);
             }
             for (int x = 0; x < SCREEN_WIDTH; x++) {
                 setPixel(x, mouse_y, red, green, blue);
             }
+        // single pixel brush
         }else if(autoScroll>0){
             setPixel(mouse_x, mouse_y, red, green, blue);
         }
     }
 
-    bool Screen::gameOfLifeRandom(){
+    void Screen::cursorLinesFilled(Uint8 red, Uint8 green, Uint8 blue){
+        std::cout<<autoScroll<<std::endl;
+        int mouse_x;
+        int mouse_y;
+        SDL_GetMouseState(&mouse_x, &mouse_y);
+        if(clearMem) {
+            memset(m_buffer, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
+        }
+        if(autoScroll<0) {
+            // cross-hair fill
+            // smooth transitions
+            if(sm_x != -1) {
+                if (sm_x < mouse_x) {
+                    for (int x = sm_x; x <= mouse_x; x++) {
+                        for (int y = 0; y < SCREEN_HEIGHT; y++) {
+                            setPixel(x, y, red, green, blue);
+                        }
+                    }
+                } else {
+                    for (int x = mouse_x; x <= sm_x; x++) {
+                        for (int y = 0; y < SCREEN_HEIGHT; y++) {
+                            setPixel(x, y, red, green, blue);
+                        }
+                    }
+                }
+                if (sm_y < mouse_y) {
+                    for (int y = sm_y; y <= mouse_y; y++) {
+                        for (int x = 0; x < SCREEN_WIDTH; x++) {
+                            setPixel(x, y, red, green, blue);
+                        }
+                    }
+                }else{
+                    for (int y = mouse_y; y <= sm_x; y++) {
+                        for (int x = 0; x < SCREEN_WIDTH; x++) {
+                            setPixel(x, y, red, green, blue);
+                        }
+                    }
+                }
+            }
+            else {
+                for (int y = 0; y < SCREEN_HEIGHT; y++) {
+                    setPixel(mouse_x, y, red, green, blue);
+                }
+                for (int x = 0; x < SCREEN_WIDTH; x++) {
+                    setPixel(x, mouse_y, red, green, blue);
+                }
+            }
+            // single pixel brush
+        }else if(autoScroll>0){
+            if(sm_x != -1){
+                while(sm_x != mouse_x || sm_y != mouse_y){
+                    setPixel(sm_x, sm_y, red, green, blue);
+                    if( abs(mouse_x-sm_x) >= abs(mouse_y-sm_y) ){
+                        // update x
+                        sm_x += (mouse_x>sm_x)*2 -1;
+                    }else{
+                        // update y
+                        sm_y += (mouse_y>sm_y)*2 -1;
+                    }
+                }
+                setPixel(mouse_x, mouse_y, red, green, blue);
+            }
+//                int counter = 0;
+//                int x = sm_x;
+//                int y = sm_y;
+//                std::cout<<"Start x: "<<sm_x<<"\tEnd x: "<<mouse_x<<std::endl;
+//                if(sm_x != mouse_x && sm_y != mouse_y) {
+//                    for (x=sm_x; x <= mouse_x; x++) {
+//                        std::cout << "X: " << x << "\t Y: " << y << std::endl;
+//                        counter++;
+//                        std::cout << (mouse_x - sm_x) << std::endl;
+//                        std::cout << (mouse_y - sm_y) << std::endl;
+//                        if((mouse_x - sm_x)>abs(mouse_y - sm_y)) {
+//                            if ((counter + 1) % (mouse_x - sm_x)/(abs(mouse_y - sm_y)) == 0) {
+//                                y += (mouse_y > sm_y) * 2 - 1;
+//                            }
+//                        }else{
+//
+//                        }
+//                        std::cout << "Check 1" << std::endl;
+//                        setPixel(x, y, red, green, blue);
+//                    }
+//                }
+//                std::cout<<"Check 2"<<std::endl;
+//                // fill to account for round downs
+//                while(x<=mouse_x){
+//                    setPixel(x, y, red, green, blue);
+//                    x++;
+//                }
+//                std::cout<<"Check 3"<<std::endl;
+//                while(y<=mouse_y){
+//                    setPixel(x, y, red, green, blue);
+//                    y++;
+//                }
+//            }else {
+//                setPixel(mouse_x, mouse_y, red, green, blue);
+//            }
+        }
+        // update last known location of cursor
+        sm_x = mouse_x;
+        sm_y = mouse_y;
+    }
+
+    void Screen::gameOfLifeRandom(){
         // originate a random board
         if(!golInitiated){
-            // generate new seed for random
-            srand((unsigned int)time(NULL));
             // use random to assign every pixel 0xFF (white) or 0x00 (black)
             for(int x=0; x<SCREEN_WIDTH; x++){
                 for(int y=0; y<SCREEN_HEIGHT; y++) {
-                    m_buffer[(y*SCREEN_WIDTH)+x] = (0xFFFFFFFF)*(std::rand()%500==0);
+                    m_buffer[(y*SCREEN_WIDTH)+x] = (0xFFFFFFFF)*(std::rand()%50==0);
                 }
             }
             golInitiated=true;
-            return false;
+            return;
         }
         // Update game frame every folStepSpeed milliseconds
         SDL_Delay(golStepSpeed);
@@ -186,10 +297,9 @@ namespace methods{
                 m_buffer[(y*SCREEN_WIDTH)+x] = 0xFFFFFFFF*(m_buffer_copy[(y*SCREEN_WIDTH)+x] == 0xFFFFFFFF);
             }
         }
-        return true;
     }
 
-    bool Screen::gameOfLifeFromSeed(unsigned int seed, unsigned int density){
+    void Screen::gameOfLifeFromSeed(unsigned int seed, unsigned int density){
         // originate a board from seed
         if(!golInitiated){
             // generate new seed for random
@@ -201,7 +311,7 @@ namespace methods{
                 }
             }
             golInitiated=true;
-            return false;
+            return;
         }
         // Update game frame every folStepSpeed milliseconds
         SDL_Delay(golStepSpeed);
@@ -220,7 +330,56 @@ namespace methods{
                 m_buffer[(y*SCREEN_WIDTH)+x] = 0xFFFFFFFF*(m_buffer_copy[(y*SCREEN_WIDTH)+x] == 0xFFFFFFFF);
             }
         }
-        return true;
+    }
+
+    void Screen::growthRandom(){
+        // originate a random board
+        if(!golInitiated){
+            // use random to assign every pixel 0xFF (white) or 0x00 (black)
+            for(int x=0; x<SCREEN_WIDTH; x++){
+                for(int y=0; y<SCREEN_HEIGHT; y++) {
+                    m_buffer[(y*SCREEN_WIDTH)+x] = (0xFFFFFFFF)*(std::rand()%50==0);
+                }
+            }
+            golInitiated=true;
+            return;
+        }
+        // Update game frame every folStepSpeed milliseconds
+        SDL_Delay(golStepSpeed);
+
+        // update cells in copy under laws described in GoL class logic
+        for(int x=0; x<SCREEN_WIDTH; x++){
+            for(int y=0; y<SCREEN_HEIGHT; y++){
+                // live or dead cell
+                m_buffer[(y*SCREEN_WIDTH)+x] = 0xFFFFFFFF*(GoL::liveOrDead(x, y, SCREEN_WIDTH, SCREEN_HEIGHT, m_buffer));
+            }
+        }
+    }
+
+    void Screen::growthFromSeed(unsigned int seed, unsigned int density){
+        // originate a board from seed
+        if(!golInitiated){
+            // generate new seed for random
+            srand(seed);
+            // use random to assign every pixel 0xFF (white) or 0x00 (black) with frequency according to density
+            for(int x=0; x<SCREEN_WIDTH; x++){
+                for(int y=0; y<SCREEN_HEIGHT; y++) {
+                    m_buffer[(y*SCREEN_WIDTH)+x] = (0xFFFFFFFF)*(std::rand()%density==0);
+                }
+            }
+            golInitiated=true;
+            return;
+        }
+        // Update game frame every folStepSpeed milliseconds
+        SDL_Delay(golStepSpeed);
+
+        // update cells in copy under laws described in GoL class logic
+        for(int x=0; x<SCREEN_WIDTH; x++){
+            for(int y=0; y<SCREEN_HEIGHT; y++){
+                // live or dead cell
+                m_buffer[(y*SCREEN_WIDTH)+x] = 0xFFFFFFFF*(GoL::liveOrDead(x, y, SCREEN_WIDTH, SCREEN_HEIGHT, m_buffer));
+            }
+        }
     }
 
     void Screen::mouseEvents(SDL_Event &event){
@@ -298,8 +457,8 @@ namespace methods{
     float Screen::getAnimationSpeed() {return animation_speed;}
     bool Screen::isGolInitiated(){return golInitiated;}
     void Screen::close(){
-        delete []m_buffer;
-        delete []m_buffer_copy;
+        delete[] m_buffer;
+        delete[] m_buffer_copy;
         SDL_DestroyRenderer(m_renderer);
         SDL_DestroyTexture(m_texture);
         SDL_DestroyWindow(m_window);

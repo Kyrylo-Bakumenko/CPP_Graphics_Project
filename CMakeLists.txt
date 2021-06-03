@@ -20,7 +20,7 @@ include_directories(
 
 set(SOURCE_FILES
 		main.cpp
-		Screen.cpp Screen.h Swarm.cpp Swarm.h Particles.cpp Particles.h GoL.cpp GoL.h)
+		Screen.cpp Screen.h Swarm.cpp Swarm.h Particle.cpp Particle.h GoL.cpp GoL.h)
 
 add_executable(collector ${SOURCE_FILES})
 

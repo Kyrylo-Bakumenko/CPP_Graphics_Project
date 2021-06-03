@@ -21,12 +21,15 @@ public:
     }
     static bool liveOrDead(const int x, const int y, const int width, const int height, Uint32 *m_buffer){
         int count;
+        bool cur_alive = m_buffer[y*width+x]/0xFFFFFFFF;
         count = numSurroundingCellsAlive(x, y, width, height, m_buffer);
         // rules for GoL
         // Any live cell with two or three live neighbours survives.
+        if ((count==2 || count==3) && cur_alive){return true;}
         // Any dead cell with three live neighbours becomes a live cell.
+        if (count==3 && !cur_alive){return true;}
         // All other live cells die in the next generation. Similarly, all other dead cells stay dead.
-        return (count==2 || count==3);
+        return false;
     }
 };
 

@@ -1,5 +1,13 @@
-//
-// Created by baby yoda on 5/28/2021.
-//
 
 #include "Swarm.h"
+namespace methods{
+
+Swarm::Swarm() {
+    m_pParticles = new Particle[NPARTICLES];
+}
+
+Swarm::~Swarm() {
+    delete[] m_pParticles;
+}
+
+}
