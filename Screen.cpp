@@ -177,32 +177,22 @@ namespace methods{
             // cross-hair fill
             // smooth transitions
             if(sm_x != -1) {
-                if (sm_x < mouse_x) {
-                    for (int x = sm_x; x <= mouse_x; x++) {
-                        for (int y = 0; y < SCREEN_HEIGHT; y++) {
-                            setPixel(x, y, red, green, blue);
-                        }
+                while(sm_x != mouse_x || sm_y != mouse_y){
+                    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+                        setPixel(sm_x, y, red, green, blue);
                     }
-                } else {
-                    for (int x = mouse_x; x <= sm_x; x++) {
-                        for (int y = 0; y < SCREEN_HEIGHT; y++) {
-                            setPixel(x, y, red, green, blue);
-                        }
+                    for (int x = 0; x < SCREEN_WIDTH; x++) {
+                        setPixel(x, sm_y, red, green, blue);
                     }
-                }
-                if (sm_y < mouse_y) {
-                    for (int y = sm_y; y <= mouse_y; y++) {
-                        for (int x = 0; x < SCREEN_WIDTH; x++) {
-                            setPixel(x, y, red, green, blue);
-                        }
-                    }
-                }else{
-                    for (int y = mouse_y; y <= sm_x; y++) {
-                        for (int x = 0; x < SCREEN_WIDTH; x++) {
-                            setPixel(x, y, red, green, blue);
-                        }
+                    if( abs(mouse_x-sm_x) >= abs(mouse_y-sm_y) ){
+                        // update x
+                        sm_x += (mouse_x>sm_x)*2 -1;
+                    }else{
+                        // update y
+                        sm_y += (mouse_y>sm_y)*2 -1;
                     }
                 }
+                setPixel(mouse_x, mouse_y, red, green, blue);
             }
             else {
                 for (int y = 0; y < SCREEN_HEIGHT; y++) {
@@ -227,41 +217,6 @@ namespace methods{
                 }
                 setPixel(mouse_x, mouse_y, red, green, blue);
             }
-//                int counter = 0;
-//                int x = sm_x;
-//                int y = sm_y;
-//                std::cout<<"Start x: "<<sm_x<<"\tEnd x: "<<mouse_x<<std::endl;
-//                if(sm_x != mouse_x && sm_y != mouse_y) {
-//                    for (x=sm_x; x <= mouse_x; x++) {
-//                        std::cout << "X: " << x << "\t Y: " << y << std::endl;
-//                        counter++;
-//                        std::cout << (mouse_x - sm_x) << std::endl;
-//                        std::cout << (mouse_y - sm_y) << std::endl;
-//                        if((mouse_x - sm_x)>abs(mouse_y - sm_y)) {
-//                            if ((counter + 1) % (mouse_x - sm_x)/(abs(mouse_y - sm_y)) == 0) {
-//                                y += (mouse_y > sm_y) * 2 - 1;
-//                            }
-//                        }else{
-//
-//                        }
-//                        std::cout << "Check 1" << std::endl;
-//                        setPixel(x, y, red, green, blue);
-//                    }
-//                }
-//                std::cout<<"Check 2"<<std::endl;
-//                // fill to account for round downs
-//                while(x<=mouse_x){
-//                    setPixel(x, y, red, green, blue);
-//                    x++;
-//                }
-//                std::cout<<"Check 3"<<std::endl;
-//                while(y<=mouse_y){
-//                    setPixel(x, y, red, green, blue);
-//                    y++;
-//                }
-//            }else {
-//                setPixel(mouse_x, mouse_y, red, green, blue);
-//            }
         }
         // update last known location of cursor
         sm_x = mouse_x;
