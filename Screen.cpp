@@ -5,6 +5,8 @@
 #include <random>
 #include "Screen.h"
 #include "GoL.h"
+#include "Particle.h"
+#include "Swarm.h"
 
 namespace methods{
     Screen::Screen():
@@ -31,8 +33,7 @@ namespace methods{
                                                SDL_WINDOWPOS_CENTERED,
                                                SDL_WINDOWPOS_CENTERED,
                                                SCREEN_WIDTH,
-                                               SCREEN_HEIGHT,
-                                               SDL_WINDOW_SHOWN);
+                                               SCREEN_HEIGHT,SDL_WINDOW_SHOWN);
         if(m_window == nullptr){
             SDL_GetError();
             SDL_Quit();
@@ -229,7 +230,7 @@ namespace methods{
             // use random to assign every pixel 0xFF (white) or 0x00 (black)
             for(int x=0; x<SCREEN_WIDTH; x++){
                 for(int y=0; y<SCREEN_HEIGHT; y++) {
-                    m_buffer[(y*SCREEN_WIDTH)+x] = (0xFFFFFFFF)*(std::rand()%50==0);
+                    m_buffer[(y*SCREEN_WIDTH)+x] = (0xFFFFFFFF)*(std::rand()%10==0);
                 }
             }
             golInitiated=true;
@@ -337,6 +338,21 @@ namespace methods{
         }
     }
 
+//    void Screen::screenSaver(const Swarm& swarm, Uint8 red, Uint8 green, Uint8 blue){
+//        // clear memory
+//        memset(m_buffer, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
+//        // do particle position shenanigans
+//        const Particle* pParticles = swarm.getParticles();
+//        for(int i=0; i<Swarm::NPARTICLES; i++) {
+//            Particle particle = pParticles[i];
+//
+//            int x = (particle.m_x + 1) * Screen::SCREEN_WIDTH / 2;
+//            int y = (particle.m_y + 1) * Screen::SCREEN_HEIGHT / 2;
+//
+//            setPixel(x, y, red, green, blue);
+//        }
+//    }
+
     void Screen::mouseEvents(SDL_Event &event){
         if(golInitiated){
             if (event.type == SDL_MOUSEWHEEL) {
@@ -400,6 +416,9 @@ namespace methods{
         SDL_Event event;
         if(autoScroll!=0){
             zoom+=autoScroll;
+            if (zoom < 0.0) {
+                zoom = 0.0;
+            }
         }
         while(SDL_PollEvent(&event)){
             mouseEvents(event);

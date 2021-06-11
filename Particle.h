@@ -1,17 +1,18 @@
-
-#ifndef COLLECTOR_PARTICLE_H
-#define COLLECTOR_PARTICLE_H
-
-
-namespace methods {
-struct Particle {
-    double m_x;
-    double m_y;
-public:
-    Particle();
-    virtual ~Particle();
-};
-}
-
-
-#endif //COLLECTOR_PARTICLE_H
+//
+//#ifndef COLLECTOR_PARTICLE_H
+//#define COLLECTOR_PARTICLE_H
+//
+//
+//namespace methods {
+//struct Particle {
+//    double m_x;
+//    double m_y;
+//public:
+//    Particle();
+//    virtual ~Particle();
+//    void update();
+//};
+//}
+//
+//
+//#endif //COLLECTOR_PARTICLE_H

@@ -2,6 +2,7 @@
 #ifndef COLLECTOR_SCREEN_H
 #define COLLECTOR_SCREEN_H
 #include <SDL.h>
+#include "Swarm.h"
 
 namespace methods {
     class Screen {
@@ -29,6 +30,7 @@ namespace methods {
         void update();
         void setPixel(int x, int y, Uint8 red, Uint8 green, Uint8 blue);
         void updateColors(unsigned char &red, unsigned char &green, unsigned char &blue, Uint32 elapsed) const;
+
         void solidColorScreen(Uint8 red, Uint8 green, Uint8 blue);
         void colorGrid(Uint8 red, Uint8 green, Uint8 blue, int gridSize);
         void cursorLines(Uint8 red, Uint8 green, Uint8 blue);
@@ -37,6 +39,8 @@ namespace methods {
         void gameOfLifeFromSeed(unsigned int seed, unsigned int density);
         void growthRandom();
         void growthFromSeed(unsigned int seed, unsigned int density);
+//        void screenSaver(const Swarm& swarm, Uint8 red, Uint8 green, Uint8 blue);
+
         void mouseEvents(SDL_Event &event);
         bool processEvents();
         float getAnimationSpeed();

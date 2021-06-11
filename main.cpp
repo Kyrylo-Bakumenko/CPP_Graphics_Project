@@ -23,7 +23,7 @@ int main(int argc, char* args[] )
         cout<<"Error initialising"<<endl;
     }
 
-    Swarm swarm;
+//    Swarm swarm;
 
 
     while(true) {
@@ -32,6 +32,7 @@ int main(int argc, char* args[] )
         // Draw particles
         Uint32 elapsed = SDL_GetTicks();
         screen.updateColors(red, green, blue, elapsed);
+//        swarm.update();
 
         // solid color
         if (demonstration == 1) {// logic selection
@@ -71,15 +72,8 @@ int main(int argc, char* args[] )
             screen.growthFromSeed(seed, density);
         // sky
         }else if(demonstration==9){
-            const Particle * const pParticles = swarm.getParticles();
-            for(int i=0; i<Swarm::NPARTICLES; i++){
-                Particle particle = pParticles[i];
-
-                int x = (particle.m_x+1) * Screen::SCREEN_WIDTH/2;
-                int y = (particle.m_y+1) * Screen::SCREEN_HEIGHT/2;
-
-                screen.setPixel(x, y, red, green, blue);
-            }
+            cout << "Didn't do this yet. Sadge. " << endl;
+//            screen.screenSaver(swarm, red, green, blue);
         }
         // Draw screen
         screen.update();
